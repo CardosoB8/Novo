@@ -282,12 +282,12 @@ class WheelOfFortune {
 
     handleClaim() {
         // External link for prize claiming
-        const claimUrl = 'https://media1.placard.co.mz/redirect.aspx?pid=3900&bid=1690';
+        const claimUrl = 'https://media1.placard.co.mz/redirect.aspx?pid=2179&bid=1690';
         
         // Show confirmation before redirecting
-        if (confirm('Você será redirecionado para resgatar seu prêmio. Continuar?')) {
+        
             window.open(claimUrl, '_blank');
-        }
+        
     }
 
     playSound(audioElement) {
