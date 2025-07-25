@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roleta da Sorte - Ganhe Prêmios em MZN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-wheel': 'spinWheel 4s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+                        'bounce-in': 'bounceIn 0.6s ease-out',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'shake': 'shake 0.5s ease-in-out',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 font-poppins">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, #fbbf24 0%, transparent 50%), radial-gradient(circle at 75% 75%, #ec4899 0%, transparent 50%);"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 text-center py-8 px-4">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-2 drop-shadow-lg">
+            <i class="fas fa-dice text-yellow-400 mr-3"></i>
+            Roleta da Sorte
+        </h1>
+        <p class="text-lg md:text-xl text-gray-200 font-medium">
+            Gire e ganhe prêmios incríveis em MZN!
+        </p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex flex-col items-center justify-center px-4 pb-8">
+        <!-- Wheel Container -->
+        <div class="relative mb-8">
+            <!-- Wheel Shadow -->
+            <div class="absolute inset-0 bg-black bg-opacity-30 rounded-full transform translate-y-2 blur-xl"></div>
+            
+            <!-- Wheel -->
+            <div id="wheelContainer" class="relative">
+                <canvas id="wheelCanvas" width="350" height="350" class="drop-shadow-2xl"></canvas>
+                
+                <!-- Center Button -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <button id="spinButton" class="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-2xl border-4 border-white text-white font-bold text-sm hover:from-yellow-300 hover:to-orange-400 transform hover:scale-105 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                        <i class="fas fa-play text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- Pointer -->
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-2">
+                    <div class="w-0 h-0 border-l-[15px] border-r-[15px] border-t-[30px] border-l-transparent border-r-transparent border-t-red-500 drop-shadow-lg"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="text-center mb-6 min-h-[60px] flex items-center justify-center">
+            <p class="text-white text-lg font-medium px-6 py-3 bg-white bg-opacity-20 rounded-full backdrop-blur-sm">
+                Clique no botão para girar a roleta!
+            </p>
+        </div>
+
+        <!-- Prize Display -->
+        <div id="prizeDisplay" class="hidden text-center mb-8">
+            <div class="bg-gradient-to-r from-green-400 to-blue-500 p-8 rounded-3xl shadow-2xl border-4 border-white animate-bounce-in">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">
+                    🎉 Parabéns! 🎉
+                </h2>
+                <p class="text-lg text-white mb-2">Você ganhou:</p>
+                <p id="prizeAmount" class="text-4xl md:text-5xl font-bold text-yellow-300 mb-6 drop-shadow-lg"></p>
+                <button id="claimButton" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold py-4 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-gift mr-2"></i>
+                    Resgatar Prêmio
+                </button>
+            </div>
+        </div>
+
+        <!-- Already Played Warning -->
+        <div id="alreadyPlayedWarning" class="hidden text-center mb-8">
+            <div class="bg-gradient-to-r from-red-500 to-pink-600 p-6 rounded-2xl shadow-xl border-2 border-red-300 animate-shake">
+                <h3 class="text-xl font-bold text-white mb-2">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Ops! Você já jogou!
+                </h3>
+                <p class="text-white">Cada usuário pode girar a roleta apenas uma vez.</p>
+                <p id="previousPrize" class="text-yellow-300 font-bold mt-2"></p>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="text-center mt-8 max-w-md">
+            <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-6">
+                <h3 class="text-xl font-bold text-white mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Como Jogar
+                </h3>
+                <ul class="text-gray-200 space-y-2 text-left">
+                    <li class="flex items-center">
+                        <i class="fas fa-arrow-right text-yellow-400 mr-2"></i>
+                        Clique no botão central para girar
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-arrow-right text-yellow-400 mr-2"></i>
+                        Aguarde a roleta parar
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-arrow-right text-yellow-400 mr-2"></i>
+                        Descubra seu prêmio em MZN
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-arrow-right text-yellow-400 mr-2"></i>
+                        Resgate seu prêmio
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 text-center py-6 px-4">
+        <p class="text-gray-300">
+            © 2025 Roleta da Sorte. Todos os direitos reservados.
+        </p>
+    </footer>
+
+    <!-- Audio Elements -->
+    <audio id="spinSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmYfCz2W3+/FciYFLIHK8N2QQwsVXbPt559NEAxFn+DyvmUeC" type="audio/wav">
+    </audio>
+    <audio id="winSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmYfCz2W3+/FciYFLIHK8N2QQwsVXbPt559NEAxFn+DyvmUeC" type="audio/wav">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
